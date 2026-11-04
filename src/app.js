@@ -1,7 +1,9 @@
 const express = require("express");
+const path = require("path");
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 const appointmentsRouter = require("./routes/appointments");
 const whatsappRouter = require("./routes/whatsapp");
@@ -11,7 +13,7 @@ app.use("/appointments", appointmentsRouter);
 app.use("/whatsapp", whatsappRouter);
 app.use("/follow-ups", followUpsRouter);
 
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.json({
     service: "EPIA CRM API",
     endpoints: {

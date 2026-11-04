@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EPIA CRM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 20px; font-weight: 600; }
+    header span { font-size: 13px; opacity: 0.6; }
+
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 24px;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      color: #666;
+      transition: all 0.15s;
+    }
+
+    .tab:hover { color: #1a1a2e; }
+    .tab.active { color: #1a1a2e; border-bottom-color: #4361ee; }
+
+    .container { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-row input, .form-row select {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-row input:focus { border-color: #4361ee; }
+
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    textarea:focus { border-color: #4361ee; }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-primary { background: #4361ee; color: #fff; }
+    .btn-primary:hover { background: #3a56d4; }
+
+    .btn-success { background: #2ec4b6; color: #fff; }
+    .btn-success:hover { background: #28b0a3; }
+
+    .btn-warning { background: #f77f00; color: #fff; }
+    .btn-warning:hover { background: #e07200; }
+
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s;
+      max-width: 380px;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: #2ec4b6; }
+    .toast.error { background: #e63946; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-top: 1px solid #eee;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-sent { background: #d4edda; color: #155724; }
+    .badge-failed { background: #f8d7da; color: #721c24; }
+    .badge-error { background: #fff3cd; color: #856404; }
+    .badge-pending { background: #cce5ff; color: #004085; }
+    .badge-completed { background: #d4edda; color: #155724; }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .refresh-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>EPIA CRM</h1>
+  <span>Appointments &middot; WhatsApp &middot; Follow-Ups</span>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-panel="appointments">Appointments</div>
+  <div class="tab" data-panel="whatsapp">WhatsApp</div>
+  <div class="tab" data-panel="followups">Follow-Ups</div>
+</div>
+
+<div class="container">
+
+  <!-- APPOINTMENTS -->
+  <div class="panel active" id="appointments">
+    <div class="card">
+      <h2>Create Appointment</h2>
+      <form id="appt-form">
+        <div class="form-row">
+          <input type="text" id="appt-name" placeholder="Patient name" required />
+          <input type="text" id="appt-phone" placeholder="Phone (e.g. +919876543210)" required />
+          <input type="date" id="appt-date" required />
+        </div>
+        <button type="submit" class="btn-primary">Create Appointment</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="refresh-row">
+        <button class="btn-primary btn-sm" onclick="loadAppointments()">Refresh</button>
+      </div>
+      <h2>All Appointments</h2>
+      <div id="appt-list"></div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div class="panel" id="whatsapp">
+    <div class="card">
+      <h2>Send Reminder</h2>
+      <div class="form-row">
+        <select id="wa-appt-select">
+          <option value="">Select an appointment</option>
+        </select>
+        <button class="btn-warning" onclick="sendReminder()">Send WhatsApp Reminder</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Message Log</h2>
+      <div class="form-row">
+        <select id="wa-log-select">
+          <option value="">Select an appointment</option>
+        </select>
+        <button class="btn-primary btn-sm" onclick="loadMessages()">View Messages</button>
+      </div>
+      <div id="msg-list" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- FOLLOW-UPS -->
+  <div class="panel" id="followups">
+    <div class="card">
+      <h2>Create Follow-Up</h2>
+      <form id="fu-form">
+        <div class="form-row">
+          <select id="fu-appt-select" required>
+            <option value="">Select an appointment</option>
+          </select>
+          <input type="date" id="fu-date" required />
+        </div>
+        <textarea id="fu-notes" placeholder="Notes (optional)"></textarea>
+        <button type="submit" class="btn-primary">Create Follow-Up</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="refresh-row">
+        <button class="btn-primary btn-sm" onclick="loadPendingFollowUps()">Refresh</button>
+      </div>
+      <h2>Pending Follow-Ups</h2>
+      <div id="fu-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "";
+
+// --- Tabs ---
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.panel).classList.add("active");
+  });
+});
+
+// --- Toast ---
+function toast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast " + type + " show";
+  setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+// --- Fetch helper ---
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { "Content-Type": "application/json" },
+    ...opts,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+// --- Appointments ---
+async function loadAppointments() {
+  try {
+    const list = await api("/appointments");
+    const el = document.getElementById("appt-list");
+
+    if (list.length === 0) {
+      el.innerHTML = '<div class="empty-state">No appointments yet</div>';
+      return;
+    }
+
+    el.innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Date</th><th>Created</th></tr></thead>
+      <tbody>${list.map(a => `<tr>
+        <td>${a.id}</td>
+        <td>${esc(a.name)}</td>
+        <td>${esc(a.phone)}</td>
+        <td>${esc(a.date)}</td>
+        <td>${a.created_at}</td>
+      </tr>`).join("")}</tbody>
+    </table>`;
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+document.getElementById("appt-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await api("/appointments", {
+      method: "POST",
+      body: JSON.stringify({
+        name: document.getElementById("appt-name").value,
+        phone: document.getElementById("appt-phone").value,
+        date: document.getElementById("appt-date").value,
+      }),
+    });
+    toast("Appointment created");
+    document.getElementById("appt-form").reset();
+    loadAppointments();
+    loadAllSelects();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+});
+
+// --- WhatsApp ---
+async function sendReminder() {
+  const id = document.getElementById("wa-appt-select").value;
+  if (!id) return toast("Select an appointment first", "error");
+
+  try {
+    const data = await api("/whatsapp/send-reminder", {
+      method: "POST",
+      body: JSON.stringify({ appointment_id: Number(id) }),
+    });
+    toast("Reminder sent! ID: " + data.whatsapp_message_id);
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+async function loadMessages() {
+  const id = document.getElementById("wa-log-select").value;
+  if (!id) return toast("Select an appointment first", "error");
+
+  try {
+    const list = await api(`/whatsapp/messages/${id}`);
+    const el = document.getElementById("msg-list");
+
+    if (list.length === 0) {
+      el.innerHTML = '<div class="empty-state">No messages for this appointment</div>';
+      return;
+    }
+
+    el.innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Phone</th><th>Status</th><th>Error</th><th>Sent At</th></tr></thead>
+      <tbody>${list.map(m => `<tr>
+        <td>${m.id}</td>
+        <td>${esc(m.recipient_phone)}</td>
+        <td><span class="badge badge-${m.status}">${m.status}</span></td>
+        <td>${m.error_message ? esc(m.error_message) : "-"}</td>
+        <td>${m.sent_at}</td>
+      </tr>`).join("")}</tbody>
+    </table>`;
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+// --- Follow-Ups ---
+document.getElementById("fu-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await api("/follow-ups", {
+      method: "POST",
+      body: JSON.stringify({
+        appointment_id: Number(document.getElementById("fu-appt-select").value),
+        follow_up_date: document.getElementById("fu-date").value,
+        notes: document.getElementById("fu-notes").value || undefined,
+      }),
+    });
+    toast("Follow-up created");
+    document.getElementById("fu-form").reset();
+    loadPendingFollowUps();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+});
+
+async function loadPendingFollowUps() {
+  try {
+    const list = await api("/follow-ups/pending");
+    const el = document.getElementById("fu-list");
+
+    if (list.length === 0) {
+      el.innerHTML = '<div class="empty-state">No pending follow-ups</div>';
+      return;
+    }
+
+    el.innerHTML = `<table>
+      <thead><tr><th>ID</th><th>Patient</th><th>Phone</th><th>Date</th><th>Notes</th><th>Status</th><th></th></tr></thead>
+      <tbody>${list.map(f => `<tr>
+        <td>${f.id}</td>
+        <td>${esc(f.patient_name)}</td>
+        <td>${esc(f.patient_phone)}</td>
+        <td>${esc(f.follow_up_date)}</td>
+        <td>${f.notes ? esc(f.notes) : "-"}</td>
+        <td><span class="badge badge-${f.status}">${f.status}</span></td>
+        <td><button class="btn-success btn-sm" onclick="completeFollowUp(${f.id})">Complete</button></td>
+      </tr>`).join("")}</tbody>
+    </table>`;
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+async function completeFollowUp(id) {
+  try {
+    await api(`/follow-ups/${id}/complete`, { method: "PATCH" });
+    toast("Follow-up completed");
+    loadPendingFollowUps();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+// --- Populate selects ---
+async function loadAllSelects() {
+  try {
+    const list = await api("/appointments");
+    const options = list.map(a =>
+      `<option value="${a.id}">${a.name} - ${esc(a.phone)} (${esc(a.date)})</option>`
+    ).join("");
+    const base = '<option value="">Select an appointment</option>' + options;
+    document.getElementById("wa-appt-select").innerHTML = base;
+    document.getElementById("wa-log-select").innerHTML = base;
+    document.getElementById("fu-appt-select").innerHTML = base;
+  } catch (e) {}
+}
+
+// --- Escape HTML ---
+function esc(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// --- Init ---
+loadAppointments();
+loadAllSelects();
+loadPendingFollowUps();
+</script>
+
+</body>
+</html>

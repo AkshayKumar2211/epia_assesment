@@ -1,4 +1,4 @@
-# Task 2A — WhatsApp API Error Diagnosis
+# WhatsApp API Error Diagnosis
 
 ## Error received
 
@@ -21,7 +21,7 @@ Error code **190** from the Meta Graph API means the access token used in the re
 - The token is **malformed** — a copy-paste error, truncation, or an environment variable that wasn't loaded correctly.
 - The token **doesn't have the required permissions** — for WhatsApp, the token needs the `whatsapp_business_messaging` permission.
 
-## 2. How I would investigate and resolve it
+## 2. How to investigate and resolve
 
 1. **Check token validity** — call `GET https://graph.facebook.com/debug_token?input_token={TOKEN}&access_token={APP_TOKEN}` to see if the token is still valid and what scopes it carries.
 2. **Verify environment configuration** — confirm the token in the running environment (env vars, secrets manager) matches what was generated in the Meta developer console. Look for truncation or extra whitespace.

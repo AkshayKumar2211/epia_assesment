@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database");
 
-// --- Task 3: CRM Follow-Up Feature ---
-
 const insertFollowUp = db.prepare(`
   INSERT INTO follow_ups (appointment_id, follow_up_date, status, notes)
   VALUES (?, ?, 'pending', ?)

@@ -2,17 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database");
 
-// --- Task 1: Fixed and improved appointments API ---
-//
-// Original bugs fixed:
-//   1. Missing express.json() middleware — req.body was undefined
-//   2. ID comparison: req.params.id is a string, but stored id is a number
-//      Fixed by parsing to integer with Number()
-//   3. No field validation — name, phone, date could all be missing
-//   4. No proper HTTP status codes (was always 200)
-//   5. No persistence — in-memory array lost data on restart
-//      Fixed by using SQLite via better-sqlite3
-
 const insertAppointment = db.prepare(
   "INSERT INTO appointments (name, phone, date) VALUES (?, ?, ?)"
 );

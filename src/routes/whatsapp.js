@@ -2,10 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database");
 
-// --- Task 2B: Simulated WhatsApp API integration ---
-
-// Simulated Meta WhatsApp Business API
-// Randomly returns success or one of several known error responses
 function simulateWhatsAppAPI(phone, message) {
   const rand = Math.random();
 
@@ -107,7 +103,6 @@ router.post("/send-reminder", (req, res) => {
     const errorType = apiResponse.data.error.type;
     const errorMsg = apiResponse.data.error.message;
 
-    // Log without exposing tokens or sensitive data
     console.error(
       `WhatsApp API error — code: ${errorCode}, type: ${errorType}, message: ${errorMsg}`
     );
@@ -127,7 +122,6 @@ router.post("/send-reminder", (req, res) => {
       code: errorCode,
     });
   } catch (err) {
-    // Catch-all prevents API failures from crashing the application
     console.error("Unexpected error in WhatsApp send:", err.message);
 
     insertMessage.run(
